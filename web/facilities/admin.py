@@ -1,12 +1,11 @@
 from django.contrib import admin
-from .models import *
+# from .models import *
 
-admin.site.register(Bus)
-admin.site.register(Hospital)
-admin.site.register(Gym)
-admin.site.register(Hair)
-admin.site.register(Laundry)
-admin.site.register(Pharmacy)
-admin.site.register(Mart)
-admin.site.register(Cafe)
-admin.site.register(Convenience)
+# admin.site.register(Hospital)
+# admin.site.register(Gym)
+# admin.site.register(Hair)
+# admin.site.register(Laundry)
+# admin.site.register(Pharmacy)
+# admin.site.register(Mart)
+# admin.site.register(Cafe)
+# admin.site.register(Convenience)

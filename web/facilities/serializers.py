@@ -1,58 +1,54 @@
 from rest_framework import serializers
 from .models import *
 
-
-# bus, hospital, mart, cafe, hair, laundry, gym, pharmacy, convenience
+class UserInput(models.Model):
+    x = models.FloatField()
+    y = models.FloatField()
+    radius = models.FloatField()
 
 class UserInputSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserInput
-        fields = ['id', 'x','y','position_range']
+        fields = [ 'x','y','radius']
 
-
-class BusSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Bus
-        fields = ['id', 'CityName', 'StationName','lat','lon','choice']
-    
 
 class HospitalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hospital
-        fields = ['id','bplcNm', 'siteWhlAddr', 'rdnWhlAddr', 'uptaeNm', 'lat','lon','choice']
+        fields = ['bplcnm', 'sitewhladdr', 'rdnwhladdr', 'uptaenm', 'x','y','choice']
 
 class MartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mart
-        fields = ['id','bplcNm', 'siteWhlAddr', 'rdnWhlAddr', 'uptaeNm', 'lat','lon','choice']
+        fields = ['bplcnm', 'sitewhladdr', 'rdnwhladdr', 'uptaenm', 'x','y','choice']
 
 class CafeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cafe
-        fields = ['id','bplcNm', 'uptaeNm', 'lat','lon','choice']
+        fields = ['bplcnm', 'uptaenm', 'x','y','choice']
 
 class HairSerializer(serializers.ModelSerializer):
     class Meta:
         model = Hair
-        fields = ['bplcNm', 'siteWhlAddr', 'rdnWhlAddr', 'uptaeNm', 'lat','lon','choice']
+        fields = ['bplcnm', 'sitewhladdr', 'rdnwhladdr', 'uptaenm', 'x','y','choice']
 
 class GymSerializer(serializers.ModelSerializer):
     class Meta:
         model = Gym
-        fields = ['id','bplcNm', 'siteWhlAddr', 'rdnWhlAddr', 'lat','lon','choice']
+        fields = ['bplcnm', 'sitewhladdr', 'rdnwhladdr', 'x','y','choice']
 
 class PharmacySerializer(serializers.ModelSerializer):
     class Meta:
         model = Pharmacy
-        fields = ['id','bplcNm', 'siteWhlAddr', 'rdnWhlAddr', 'uptaeNm', 'lat','lon','choice']
+        fields = ['bplcnm', 'sitewhladdr', 'rdnwhladdr', 'uptaenm', 'x','y','choice']
 
 class LaundrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Laundry
-        fields = ['id','bplcNm', 'siteWhlAddr', 'rdnWhlAddr', 'uptaeNm', 'lat','lon','choice']
+        fields = ['bplcnm', 'sitewhladdr', 'rdnwhladdr', 'uptaenm', 'x','y','choice']
 
 class ConvenienceSerializer(serializers.ModelSerializer):
     class Meat:
         model = Convenience
-        fields = ['id','bplcNm', 'siteWhlAddr', 'rdnWhlAddr', 'uptaeNm', 'lat','lon','choice']
+        fields = ['bplcnm', 'sitewhladdr', 'rdnwhladdr', 'uptaenm', 'x','y','choice']
 

@@ -6,42 +6,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 
+
 # 반경 radius * 0.001
-
-# 입력받은 반경 버스 정보 조회
-class busAPI(APIView):
-    def post(self,request):
-         bus_serializer = UserInputSerializer(data = request.data)
-         if bus_serializer.is_valid():
-            result = bus_serializer.data['x']
-            result2 = bus_serializer.data['y']
-            radius = bus_serializer.data['radius']
-            
-            filter_kwargs = {}
-            filter_kwargs = {}
-           			
-            filter_kwargs['lat__gte'] = result - radius*0.001 
-            filter_kwargs['lat__lte'] = result + radius*0.001
-            filter_kwargs['lon__gte'] = result2 - radius*0.001
-            filter_kwargs['lon__lte'] = result2 + radius*0.001
-            try:
-                position = Bus.objects.filter(**filter_kwargs)
-                
-            except ValueError:
-                position = Bus.objects.all()
-            
-            for bus_data in position:
-                bus_data.choice = True
-            serializer = BusSerializer(position, many=True)
-            return Response(serializer.data)
-         
-
-# 카테고리 선택한 버스 값들만 보여주기
-class getbusAPI(APIView):
-    def get(self, request):
-        info = Bus.objects.filter(choice=True)
-        serializer = BusSerializer(info, many=True)
-        return Response(serializer.data)
   
 
 # 입력받은 반경 병원 정보 조회
@@ -55,11 +21,13 @@ class hospitalAPI(APIView):
             
             filter_kwargs = {}
             filter_kwargs = {}
-           			
-            filter_kwargs['lat__gte'] = result - radius*0.001 
-            filter_kwargs['lat__lte'] = result + radius*0.001
-            filter_kwargs['lon__gte'] = result2 - radius*0.001
-            filter_kwargs['lon__lte'] = result2 + radius*0.001
+        
+            filter_kwargs['x__gte'] = result - radius * 0.001 
+            filter_kwargs['x__lte'] = result + radius*0.001
+            filter_kwargs['y__gte'] = result2 - radius*0.001
+            filter_kwargs['y__lte'] = result2 + radius*0.001
+
+
             try:
                 position = Hospital.objects.filter(**filter_kwargs)
                 
@@ -68,15 +36,16 @@ class hospitalAPI(APIView):
             
             for hospital_data in position:
                 hospital_data.choice = True
+
             serializer = HospitalSerializer(position, many=True)
             return Response(serializer.data)
 
 # 카테고리 선택한 병원 값들만 보여주기
-class getHospitalAPI(APIView):
-    def get(self, request):
-        info = Hospital.objects.filter(choice=True)
-        serializer = HospitalSerializer(info, many=True)
-        return Response(serializer.data)
+# class getHospitalAPI(APIView):
+#     def get(self, request):
+#         info = Hospital.objects.filter(choice=True)
+#         serializer = HospitalSerializer(info, many=True)
+#         return Response(serializer.data)
 
 
 
@@ -85,34 +54,45 @@ class gymAPI(APIView):
     def post(self,request):
          gym_serializer = UserInputSerializer(data = request.data)
          if gym_serializer.is_valid():
+            gym_serializer.save()
             result = gym_serializer.data['x']
             result2 = gym_serializer.data['y']
             radius = gym_serializer.data['radius']
             
+
+            
             filter_kwargs = {}
-            filter_kwargs = {}
-           			
-            filter_kwargs['lat__gte'] = result - radius*0.001 
-            filter_kwargs['lat__lte'] = result + radius*0.001
-            filter_kwargs['lon__gte'] = result2 - radius*0.001
-            filter_kwargs['lon__lte'] = result2 + radius*0.001
+        
+
+            filter_kwargs['x__gte'] = result - radius*0.001
+            print(result - radius*0.001) 
+            filter_kwargs['x__lte'] = result + radius*0.001
+            print(result + radius*0.001) 
+            filter_kwargs['y__gte'] = result2 - radius*0.001
+            print(result2 - radius*0.001) 
+            filter_kwargs['y__lte'] = result2 + radius*0.001
+            print(result2 + radius*0.001) 
+            
             try:
                 position = Gym.objects.filter(**filter_kwargs)
-                
+                for gym_data in position:
+                    gym_data.choice = True
+            
             except ValueError:
                 position = Gym.objects.all()
             
-            for gym_data in position:
-                gym_data.choice = True
+
             serializer = GymSerializer(position, many=True)
-            return Response(serializer.data)
+            return Response(serializer.data,status=status.HTTP_200_OK)
+         else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 # 카테고리 선택한 체육시설 값들만 보여주기
-class getGymAPI(APIView):
-    def get(self, request):
-        info = Gym.objects.filter(choice=True)
-        serializer = GymSerializer(info, many=True)
-        return Response(serializer.data)
+# class getGymAPI(APIView):
+#     def get(self, request):
+#         info = Gym.objects.filter(choice=True)
+#         serializer = GymSerializer(info, many=True)
+#         return Response(serializer.data)
 
 # 입력받은 반경 미용실 정보 조회
 class hairAPI(APIView):
@@ -126,10 +106,10 @@ class hairAPI(APIView):
             filter_kwargs = {}
             filter_kwargs = {}
            			
-            filter_kwargs['lat__gte'] = result - radius*0.001 
-            filter_kwargs['lat__lte'] = result + radius*0.001
-            filter_kwargs['lon__gte'] = result2 - radius*0.001
-            filter_kwargs['lon__lte'] = result2 + radius*0.001
+            filter_kwargs['x__gte'] = result - radius*0.001 
+            filter_kwargs['x__lte'] = result + radius*0.001
+            filter_kwargs['y__gte'] = result2 - radius*0.001
+            filter_kwargs['y__lte'] = result2 + radius*0.001
             try:
                 position = Hair.objects.filter(**filter_kwargs)
                 
@@ -142,11 +122,11 @@ class hairAPI(APIView):
             return Response(serializer.data)
 
 # 카테고리 선택한 미용실 값들만 보여주기
-class getHairAPI(APIView):
-    def get(self, request):
-        info = Hair.objects.filter(choice=True)
-        serializer = HairSerializer(info, many=True)
-        return Response(serializer.data)
+# class getHairAPI(APIView):
+#     def get(self, request):
+#         info = Hair.objects.filter(choice=True)
+#         serializer = HairSerializer(info, many=True)
+#         return Response(serializer.data)
     
 # 입력받은 반경 런드리 정보 조회
 class laundryAPI(APIView):
@@ -160,10 +140,10 @@ class laundryAPI(APIView):
             filter_kwargs = {}
             filter_kwargs = {}
            			
-            filter_kwargs['lat__gte'] = result - radius*0.001 
-            filter_kwargs['lat__lte'] = result + radius*0.001
-            filter_kwargs['lon__gte'] = result2 - radius*0.001
-            filter_kwargs['lon__lte'] = result2 + radius*0.001
+            filter_kwargs['x__gte'] = result - radius*0.001 
+            filter_kwargs['x__lte'] = result + radius*0.001
+            filter_kwargs['y__gte'] = result2 - radius*0.001
+            filter_kwargs['y__lte'] = result2 + radius*0.001
             try:
                 position = Laundry.objects.filter(**filter_kwargs)
                 
@@ -176,11 +156,11 @@ class laundryAPI(APIView):
             return Response(serializer.data)
 
 # 카테고리 선택한 런드리 값들만 보여주기
-class getLaundryAPI(APIView):
-    def get(self, request):
-        info = Laundry.objects.filter(choice=True)
-        serializer = LaundrySerializer(info, many=True)
-        return Response(serializer.data)
+# class getLaundryAPI(APIView):
+#     def get(self, request):
+#         info = Laundry.objects.filter(choice=True)
+#         serializer = LaundrySerializer(info, many=True)
+#         return Response(serializer.data)
 
 
 # 입력받은 반경 약국 정보 조회
@@ -195,10 +175,10 @@ class pharmacyAPI(APIView):
             filter_kwargs = {}
             filter_kwargs = {}
            			
-            filter_kwargs['lat__gte'] = result - radius*0.001 
-            filter_kwargs['lat__lte'] = result + radius*0.001
-            filter_kwargs['lon__gte'] = result2 - radius*0.001
-            filter_kwargs['lon__lte'] = result2 + radius*0.001
+            filter_kwargs['x__gte'] = result - radius*0.001 
+            filter_kwargs['x__lte'] = result + radius*0.001
+            filter_kwargs['y__gte'] = result2 - radius*0.001
+            filter_kwargs['y__lte'] = result2 + radius*0.001
             try:
                 position = Pharmacy.objects.filter(**filter_kwargs)
                 
@@ -211,11 +191,11 @@ class pharmacyAPI(APIView):
             return Response(serializer.data)
 
 # 카테고리 선택한 약국 값들만 보여주기
-class getPharmacyAPI(APIView):
-    def get(self, request):
-        info = Pharmacy.objects.filter(choice=True)
-        serializer = PharmacySerializer(info, many=True)
-        return Response(serializer.data)
+# class getPharmacyAPI(APIView):
+#     def get(self, request):
+#         info = Pharmacy.objects.filter(choice=True)
+#         serializer = PharmacySerializer(info, many=True)
+#         return Response(serializer.data)
     
 
 # 입력받은 반경 마트 정보 조회
@@ -230,10 +210,10 @@ class martAPI(APIView):
             filter_kwargs = {}
             filter_kwargs = {}
            			
-            filter_kwargs['lat__gte'] = result - radius*0.001 
-            filter_kwargs['lat__lte'] = result + radius*0.001
-            filter_kwargs['lon__gte'] = result2 - radius*0.001
-            filter_kwargs['lon__lte'] = result2 + radius*0.001
+            filter_kwargs['x__gte'] = result - radius*0.001 
+            filter_kwargs['x__lte'] = result + radius*0.001
+            filter_kwargs['y__gte'] = result2 - radius*0.001
+            filter_kwargs['y__lte'] = result2 + radius*0.001
             try:
                 position = Mart.objects.filter(**filter_kwargs)
                 
@@ -246,11 +226,11 @@ class martAPI(APIView):
             return Response(serializer.data)
 
 # 카테고리 선택한 마트 값들만 보여주기
-class getMartAPI(APIView):
-    def get(self, request):
-        info = Mart.objects.filter(choice=True)
-        serializer = MartSerializer(info, many=True)
-        return Response(serializer.data)
+# class getMartAPI(APIView):
+#     def get(self, request):
+#         info = Mart.objects.filter(choice=True)
+#         serializer = MartSerializer(info, many=True)
+#         return Response(serializer.data)
     
 
 # 입력받은 반경 카페 정보 조회
@@ -265,10 +245,10 @@ class cafeAPI(APIView):
             filter_kwargs = {}
             filter_kwargs = {}
            			
-            filter_kwargs['lat__gte'] = result - radius*0.001 
-            filter_kwargs['lat__lte'] = result + radius*0.001
-            filter_kwargs['lon__gte'] = result2 - radius*0.001
-            filter_kwargs['lon__lte'] = result2 + radius*0.001
+            filter_kwargs['x__gte'] = result - radius*0.001 
+            filter_kwargs['x__lte'] = result + radius*0.001
+            filter_kwargs['y__gte'] = result2 - radius*0.001
+            filter_kwargs['y__lte'] = result2 + radius*0.001
             try:
                 position = Cafe.objects.filter(**filter_kwargs)
                 
@@ -281,11 +261,11 @@ class cafeAPI(APIView):
             return Response(serializer.data)
 
 # 카테고리 선택한 카페 값들만 보여주기
-class getCafeAPI(APIView):
-    def get(self, request):
-        info = Cafe.objects.filter(choice=True)
-        serializer = CafeSerializer(info, many=True)
-        return Response(serializer.data)
+# class getCafeAPI(APIView):
+#     def get(self, request):
+#         info = Cafe.objects.filter(choice=True)
+#         serializer = CafeSerializer(info, many=True)
+#         return Response(serializer.data)
 
 
 # 입력받은 반경 편의점 정보 조회
@@ -300,10 +280,10 @@ class convenienceAPI(APIView):
             filter_kwargs = {}
             filter_kwargs = {}
            			
-            filter_kwargs['lat__gte'] = result - radius*0.001 
-            filter_kwargs['lat__lte'] = result + radius*0.001
-            filter_kwargs['lon__gte'] = result2 - radius*0.001
-            filter_kwargs['lon__lte'] = result2 + radius*0.001
+            filter_kwargs['x__gte'] = result - radius*0.001 
+            filter_kwargs['x__lte'] = result + radius*0.001
+            filter_kwargs['y__gte'] = result2 - radius*0.001
+            filter_kwargs['y__lte'] = result2 + radius*0.001
             try:
                 position = Convenience.objects.filter(**filter_kwargs)
                 
@@ -316,11 +296,11 @@ class convenienceAPI(APIView):
             return Response(serializer.data)
 
 # 카테고리 선택한 편의점 값들만 보여주기
-class getConvenienceAPI(APIView):
-    def get(self, request):
-        info = Convenience.objects.filter(choice=True)
-        serializer = ConvenienceSerializer(info, many=True)
-        return Response(serializer.data)
+# class getConvenienceAPI(APIView):
+#     def get(self, request):
+#         info = Convenience.objects.filter(choice=True)
+#         serializer = ConvenienceSerializer(info, many=True)
+#         return Response(serializer.data)
     
 
 
