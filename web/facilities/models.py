@@ -1,5 +1,9 @@
 from django.db import models
 
+class UserInput(models.Model):
+    st_x = models.FloatField()
+    st_y = models.FloatField()
+    radius = models.FloatField()
 
 class Cafe(models.Model):
     opnsfteamcode = models.CharField(db_column='opnSfTeamCode', primary_key=True, max_length=7)  # Field name made lowercase. The composite primary key (opnSfTeamCode, mgtNo, opnSvcId) found, that is not supported. The first column is selected.
@@ -20,6 +24,8 @@ class Cafe(models.Model):
     uptaenm = models.CharField(db_column='uptaeNm', max_length=100, blank=True, null=True)  # Field name made lowercase.
     coordinates = models.TextField(blank=True, null=True)  # This field type is a guess.
     choice = models.IntegerField(blank=True, null=True)
+    st_x = models.FloatField(db_column='ST_X', blank=True, null=True)  # Field name made lowercase.
+    st_y = models.FloatField(db_column='ST_Y', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = True
@@ -46,7 +52,9 @@ class Convenience(models.Model):
     uptaenm = models.CharField(db_column='uptaeNm', max_length=100, blank=True, null=True)  # Field name made lowercase.
     coordinates = models.TextField(blank=True, null=True)  # This field type is a guess.
     choice = models.IntegerField(blank=True, null=True)
-    
+    st_x = models.FloatField(db_column='ST_X', blank=True, null=True)  # Field name made lowercase.
+    st_y = models.FloatField(db_column='ST_Y', blank=True, null=True)  # Field name made lowercase.
+
     class Meta:
         managed = True
         db_table = 'convenience'
@@ -72,6 +80,8 @@ class Gym(models.Model):
     uptaenm = models.CharField(db_column='uptaeNm', max_length=100, blank=True, null=True)  # Field name made lowercase.
     coordinates = models.TextField(blank=True, null=True)  # This field type is a guess.
     choice = models.IntegerField(blank=True, null=True)
+    st_x = models.FloatField(db_column='ST_X', blank=True, null=True)  # Field name made lowercase.
+    st_y = models.FloatField(db_column='ST_Y', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = True
@@ -98,6 +108,8 @@ class Hair(models.Model):
     uptaenm = models.CharField(db_column='uptaeNm', max_length=100, blank=True, null=True)  # Field name made lowercase.
     coordinates = models.TextField(blank=True, null=True)  # This field type is a guess.
     choice = models.IntegerField(blank=True, null=True)
+    st_x = models.FloatField(db_column='ST_X', blank=True, null=True)  # Field name made lowercase.
+    st_y = models.FloatField(db_column='ST_Y', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = True
@@ -124,6 +136,8 @@ class Hospital(models.Model):
     uptaenm = models.CharField(db_column='uptaeNm', max_length=100, blank=True, null=True)  # Field name made lowercase.
     coordinates = models.TextField(blank=True, null=True)  # This field type is a guess.
     choice = models.IntegerField(blank=True, null=True)
+    st_x = models.FloatField(db_column='ST_X', blank=True, null=True)  # Field name made lowercase.
+    st_y = models.FloatField(db_column='ST_Y', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = True
@@ -150,6 +164,8 @@ class Laundry(models.Model):
     uptaenm = models.CharField(db_column='uptaeNm', max_length=100, blank=True, null=True)  # Field name made lowercase.
     coordinates = models.TextField(blank=True, null=True)  # This field type is a guess.
     choice = models.IntegerField(blank=True, null=True)
+    st_x = models.FloatField(db_column='ST_X', blank=True, null=True)  # Field name made lowercase.
+    st_y = models.FloatField(db_column='ST_Y', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = True
@@ -176,6 +192,8 @@ class Mart(models.Model):
     uptaenm = models.CharField(db_column='uptaeNm', max_length=100, blank=True, null=True)  # Field name made lowercase.
     coordinates = models.TextField(blank=True, null=True)  # This field type is a guess.
     choice = models.IntegerField(blank=True, null=True)
+    st_x = models.FloatField(db_column='ST_X', blank=True, null=True)  # Field name made lowercase.
+    st_y = models.FloatField(db_column='ST_Y', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = True
@@ -202,6 +220,8 @@ class Pharmacy(models.Model):
     uptaenm = models.CharField(db_column='uptaeNm', max_length=100, blank=True, null=True)  # Field name made lowercase.
     coordinates = models.TextField(blank=True, null=True)  # This field type is a guess.
     choice = models.IntegerField(blank=True, null=True)
+    st_x = models.FloatField(db_column='ST_X', blank=True, null=True)  # Field name made lowercase.
+    st_y = models.FloatField(db_column='ST_Y', blank=True, null=True)  # Field name made lowercase.
 
     class Meta:
         managed = True
