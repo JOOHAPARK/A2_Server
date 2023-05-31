@@ -9,91 +9,148 @@ from django.db import connection
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils.decorators import method_decorator
 import requests
-import json
-from django.http import JsonResponse
-from .serializers import LikeSerializer
+from rest_framework.permissions import IsAuthenticated
+from django.core.exceptions import ObjectDoesNotExist
 
 
-
+# 사용자 요청-결과값 넘겨주기 + 좋아요
 @method_decorator(ensure_csrf_cookie, name='dispatch')
 class InfoAPI(APIView):
-    def get(self, request):
-        # Flask 서버 URL
-        flask_server_url = 'http://127.0.0.1:5000/db_check'  
+    # permission_classes = [IsAuthenticated]
+    def post(self, request):
+        # 사용자 입력 받기
+        facilities_type = request.data.get('facilities_type', '')
+        lat = request.data.get('lat', '')
+        lon = request.data.get('lon', '')
+        radius = request.data.get('radius', '')
 
-        # GET 요청으로 Flask 서버에 전송
-        print(requests.get(flask_server_url))
-        response = requests.get(flask_server_url, params=request.query_params)
+        # like_results = LikesResult.objects.filter(lat=lat, lon=lon)
+
+        # if like_results.exists():
+        #     like_result = like_results.first()
+        #     data = {
+        #         'liked': like_result.like_state,
+        #         'lat': like_result.lat,
+        #         'lon': like_result.lon
+        #     }
+        # else:
+        #     like_result = LikesResult(lat=lat, lon=lon, like_state=True)
+        #     like_result.save()
+
+        # Flask 서버
+        flask_server_url = 'http://127.0.0.1:5000/db_check'
+
+    
+        params = {
+            "facilities_type": facilities_type,
+            "lat": lat,
+            "lon": lon,
+            "radius": radius,
+
+        }
+        
+        # Flask 서버에 입력받은 데이터 전송
+        response = requests.get(flask_server_url, params)
+
         if response.status_code == 200:
             data = response.json()
-            user = request.user
-            for item in data['body']:
-                like_id = item['id']  # 예시에서는 Info 모델의 ID로 가정
-                info = likes.objects.get(id=like_id)
-                item['liked'] = info.liked_users.filter(id=user.id).exists()
-                item['like_count'] = info.like_count
+
+            # for item in data:
+            #     # 좋아요 정보 필드 추가
+            #     item['liked'] = False
+
+            # request.session['flask_data'] = data
+
             return Response(data, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-    def delete(self, request):
-        like_id = request.GET.get('like_id')  # 좋아요를 취소할 Like 객체의 ID
+
+
+# 주소에 좋아요
+class LikeAPI(APIView):
+    def get(self, request):
+        user=request.user
+
+        lat = request.GET.get('lat', '')
+        lon = request.GET.get('lon', '')
+
+        like_results = LikesResult.objects.filter(lat=lat, lon=lon, user=user)
+
+        if like_results.exists():
+            like_result = like_results.first()
+            liked = like_result.like_state
+            like_result.like_state = not liked
+            like_result.save()
+        else:
+            like_result = LikesResult.objects.create(lat=lat, lon=lon, like_state=True,user=user)
+
+        response_data = {
+            'liked': like_result.like_state,
+            'lat': like_result.lat,
+            'lon': like_result.lon
+        }
+
+        return Response(response_data, status=status.HTTP_200_OK)
+
+
+
+# 마이 페이지_좋아요 리스트 보여주기
+class myLikeGETAPI(APIView):
+    def get(self, request):
         user = request.user
+        like_list = LikesResult.objects.filter(like_state=True,user=user)
+        like_data = []
 
-        try:
-            like = likes.objects.get(id=like_id)  # Like 모델에서 해당 ID의 객체 가져오기
-        except likes.DoesNotExist:
-            return Response({'error': 'Like object does not exist'}, status=status.HTTP_404_NOT_FOUND)
+        for like_li in like_list:
+            like_re = {
+                        'like': like_li.like_state,
+                        'lat': like_li.lat,
+                        'lon': like_li.lon,
+                    }
+            like_data.append(like_re)
 
-        if like.liked_users.filter(id=user.id).exists():  # 사용자가 좋아요를 누른 경우에만 처리
-            like.liked_users.remove(user)  # 좋아요 취소
-            like.like_count -= 1  # 좋아요 수 감소
-            like.save()
-
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(like_data, status=status.HTTP_200_OK)
     
-    # def post(self, request):
-    #     # 좋아요 처리 로직
-    #     data = request.data  # POST 요청으로 전달된 데이터
-    #     like_id = data.get('like_id')
 
-    #     try:
-    #         info = likes.objects.get(id=like_id)
-    #     except likes.DoesNotExist:
-    #         return Response({'error': 'Invalid like_id'}, status=status.HTTP_400_BAD_REQUEST)
-
-    #     user = request.user
-    #     liked = info.toggle_like(user)
-
-    #     return Response({'liked': liked}, status=status.HTTP_200_OK)
+    
 
 
+           
 
 
-# class MyView(APIView):
-#     def post(self, request):
-#         # 사용자 입력 받기
-#         facilities_type = request.data.get('facilities_type', " ")
-#         lat = request.data.get('lat', '')
-#         lon = request.data.get('lon', '')
-#         radius = request.data.get('radius', '')
+# 마이페이지에서 2개 원룸 비교할 때 추가 사용자 입력
+class extraInfo(APIView):
+    def post(self, request):
+        facilities_type = request.data.get('facilities_type', '')
+        radius = request.data.get('radius', '')
+        lat_1 = request.data.get('lat_1', '')
+        lon_1 = request.data.get('lon_1', '')
+        lat_2 = request.data.get('lat_2', '')
+        lon_2 = request.data.get('lon_2', '')
+    
+        flask_server_url = 'http://127.0.0.1:5000//db_check_two'
 
-#         # Flask 서버 URL
-#         flask_server_url = 'http://127.0.0.1:5000/db_check'
+        params = {
+            "facilities_type":facilities_type,
+            "radius":radius,
+            "lat_1": lat_1,
+            "lon_1": lon_1,
+            "lat_2": lat_2,
+            "lon_2": lon_2
 
-#         # GET 요청으로 Flask 서버에 데이터 전송
-#         params = {
-#             'facilities_type':  facilities_type,
-#             'lat': lat,
-#             'lon': lon,
-#             'radius': radius
-#         }
-#         json_data = json.dumps(params)
-#         print(json_data)
-#         response = requests.get(flask_server_url, params = json_data)
-#         print(response)
-#         if response.status_code == 200:
-#             data = response.json()
-#             return Response(data['body'], status=status.HTTP_200_OK)
-#         else:
-#             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }
+
+        response = requests.get(flask_server_url, params)
+
+        if response.status_code == 200:
+            data = response.json()
+            return Response(data, status=status.HTTP_200_OK)
+        else:
+            return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+
+
