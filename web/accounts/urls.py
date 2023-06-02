@@ -11,4 +11,4 @@ urlpatterns = [
     path('precomment/', precommentAPI.as_view()),
     path('comment/', AddrPostGetAPI.as_view()),
     path('mycomment/', mycommentAPI.as_view()),
-]
+] 

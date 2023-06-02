@@ -53,12 +53,14 @@ class logout(APIView):
 # 리뷰 작성
 class AddrPostGetAPI(APIView):
     def post(self, request):
-        user = request.user
+        username = request.data.get('username', '')
         province = request.data.get('province', '')
         city = request.data.get('city', '')
         dong = request.data.get('dong', '')
         content = request.data.get('content', '')
         input_addr = request.data.get('addr', '')
+
+        user = User.objects.get(email=username)
 
         existing_address_result = AddressResult.objects.filter(province_name=province, city_name=city, dong=dong)
 
@@ -105,25 +107,27 @@ class AddrPostGetAPI(APIView):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-# GET - 이전에 작성한 리뷰들 모두 보여주기(post하기 전)
+# post - 이전에 작성한 리뷰들 모두 보여주기
 class precommentAPI(APIView):
-    def get(self, request):
-        province = request.GET.get('province', '')
-        city = request.GET.get('city', '')
-        dong = request.GET.get('dong', '')
+    def post(self, request):
+        province = request.data.get('province', '')
+        city = request.data.get('city', '')
+        dong = request.data.get('dong', '')
 
         old_addr = AddressResult.objects.filter(province_name=province, city_name=city, dong=dong) 
-        addr_codes = old_addr.values_list('addr_code', flat=True)  
+        addr_codes = old_addr.values_list('addr_code', flat=True) 
         all_comment = Comment.objects.filter(code_comment__in=addr_codes)
         serializer = CommentGetPostSerializer(all_comment, many=True)
+
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
 # 마이페이지_작성한 리뷰 목록
 class mycommentAPI(APIView):
-    def get(self, request):
-        user=request.user
+    def post(self, request):
+        username = request.data.get('username', '')
+        user = User.objects.get(email=username)
         my_comments = Comment.objects.filter(username_comment = user)
         serializer = MyCommentSerializer(my_comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

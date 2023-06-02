@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render
 from .models import *
 from .serializers import *
@@ -24,19 +25,6 @@ class InfoAPI(APIView):
         lon = request.data.get('lon', '')
         radius = request.data.get('radius', '')
 
-        # like_results = LikesResult.objects.filter(lat=lat, lon=lon)
-
-        # if like_results.exists():
-        #     like_result = like_results.first()
-        #     data = {
-        #         'liked': like_result.like_state,
-        #         'lat': like_result.lat,
-        #         'lon': like_result.lon
-        #     }
-        # else:
-        #     like_result = LikesResult(lat=lat, lon=lon, like_state=True)
-        #     like_result.save()
-
         # Flask 서버
         flask_server_url = 'http://127.0.0.1:5000/db_check'
 
@@ -55,11 +43,7 @@ class InfoAPI(APIView):
         if response.status_code == 200:
             data = response.json()
 
-            # for item in data:
-            #     # 좋아요 정보 필드 추가
-            #     item['liked'] = False
-
-            # request.session['flask_data'] = data
+            print(data)
 
             return Response(data, status=status.HTTP_200_OK)
         else:
@@ -68,54 +52,54 @@ class InfoAPI(APIView):
 
 # 주소에 좋아요
 class LikeAPI(APIView):
-    def get(self, request):
-        user=request.user
+    def post(self, request):
+        username = request.data.get('username', '')
+        liked = request.data.get('like', False)
+        lat = request.data.get('lat', '')
+        lon = request.data.get('lon', '')
 
-        lat = request.GET.get('lat', '')
-        lon = request.GET.get('lon', '')
-
+        user = User.objects.get(email=username) 
         like_results = LikesResult.objects.filter(lat=lat, lon=lon, user=user)
-
         if like_results.exists():
             like_result = like_results.first()
             liked = like_result.like_state
+            print(liked)
             like_result.like_state = not liked
+            print(like_result.like_state)
             like_result.save()
         else:
-            like_result = LikesResult.objects.create(lat=lat, lon=lon, like_state=True,user=user)
+            like_result = LikesResult.objects.create(lat=lat, lon=lon, like_state=True, user=user)
 
         response_data = {
             'liked': like_result.like_state,
             'lat': like_result.lat,
-            'lon': like_result.lon
+            'lon': like_result.lon,
+            
         }
 
         return Response(response_data, status=status.HTTP_200_OK)
 
 
-
 # 마이 페이지_좋아요 리스트 보여주기
 class myLikeGETAPI(APIView):
-    def get(self, request):
-        user = request.user
-        like_list = LikesResult.objects.filter(like_state=True,user=user)
-        like_data = []
+    def post(self, request):
+        username = request.data.get('username', '')
+        try:
+            user = User.objects.get(email=username)
+            like_list = LikesResult.objects.filter(like_state=True, user=user)
+            like_data = []
 
-        for like_li in like_list:
-            like_re = {
-                        'like': like_li.like_state,
-                        'lat': like_li.lat,
-                        'lon': like_li.lon,
-                    }
-            like_data.append(like_re)
+            for like_li in like_list:
+                like_re = {
+                    'like': like_li.like_state,
+                    'lat': like_li.lat,
+                    'lon': like_li.lon,
+                }
+                like_data.append(like_re)
 
-        return Response(like_data, status=status.HTTP_200_OK)
-    
-
-    
-
-
-           
+            return Response(like_data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({'error': 'Invalid username'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # 마이페이지에서 2개 원룸 비교할 때 추가 사용자 입력
@@ -147,10 +131,6 @@ class extraInfo(APIView):
             return Response(data, status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
-
-
 
 
 
